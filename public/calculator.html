@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cek Limit Klaim - FutureGuard AI</title>
+    <link rel="stylesheet" href="calculator.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">FutureGuard<span class="dot">.</span></div>
+        <div class="nav-links">
+            <a href="home.html">Beranda</a>
+            <a href="#" class="active">Cek Klaim</a>
+        </div>
+    </nav>
+
+    <div class="wizard-container">
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="wizard-header">
+            <h2 id="stepTitle">Profil Peserta</h2>
+            <p id="stepDesc">Isi data dasar untuk identifikasi peserta asuransi.</p>
+        </div>
+
+        <form id="insuranceForm">
+            
+            <div class="form-step active" id="step1">
+                <div class="input-group">
+                    <label>Berapa usia Anda saat ini?</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-cake-candles icon"></i>
+                        <input type="number" id="age" placeholder="Contoh: 25">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Jenis Kelamin?</label>
+                    <div class="radio-cards">
+                        <label class="radio-card">
+                            <input type="radio" name="sex" value="male">
+                            <div class="card-content">
+                                <i class="fa-solid fa-mars"></i>
+                                <span>Pria</span>
+                            </div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="sex" value="female">
+                            <div class="card-content">
+                                <i class="fa-solid fa-venus"></i>
+                                <span>Wanita</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-step" id="step2">
+                <div class="input-group">
+                    <label>Berat Badan (kg)</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-weight-scale icon"></i>
+                        <input type="number" id="weight" placeholder="Contoh: 70">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Tinggi Badan (cm)</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-ruler-vertical icon"></i>
+                        <input type="number" id="height" placeholder="Contoh: 170">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>BMI (Dihitung Otomatis)</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-calculator icon"></i>
+                        <input type="number" step="0.1" id="bmi" placeholder="Hasil otomatis..." readonly style="background-color: #f1f5f9; cursor: not-allowed; color: #64748b;">
+                    </div>
+                    <small>Rumus: Berat (kg) / Tinggi (m)²</small>
+                </div>
+            </div>
+
+            <div class="form-step" id="step3">
+                <div class="input-group">
+                    <label>Tekanan Darah (Sistolik)</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-heart-pulse icon"></i>
+                        <input type="number" id="bloodpressure" placeholder="Normal: 120">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Riwayat Diabetes?</label>
+                    <select id="diabetes">
+                        <option value="0">Tidak Ada</option>
+                        <option value="1">Ya, Ada</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Riwayat Penyakit Bawaan</label>
+                    <select id="hereditary_diseases">
+                        <option value="NoDisease">Tidak Ada</option>
+                        <option value="Diabetes">Diabetes (Genetik)</option>
+                        <option value="Alzheimer">Alzheimer</option>
+                        <option value="High BP">Darah Tinggi</option>
+                        <option value="HeartDisease">Sakit Jantung</option>
+                        <option value="Cancer">Kanker</option>
+                        <option value="Epilepsy">Epilepsi</option>
+                        <option value="Arthritis">Radang Sendi</option>
+                        <option value="Obesity">Obesitas</option>
+                        <option value="EyeDisease">Penyakit Mata</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-step" id="step4">
+                <div class="input-group">
+                    <label>Apakah Anda Merokok?</label>
+                    <div class="radio-cards">
+                        <label class="radio-card">
+                            <input type="radio" name="smoker" value="0" checked>
+                            <div class="card-content">
+                                <i class="fa-solid fa-leaf"></i>
+                                <span>Tidak</span>
+                            </div>
+                        </label>
+                        <label class="radio-card warning">
+                            <input type="radio" name="smoker" value="1">
+                            <div class="card-content">
+                                <i class="fa-solid fa-smoking"></i>
+                                <span>Ya</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Jumlah Tanggungan (Anak)</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-children icon"></i>
+                        <input type="number" id="dependents" value="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="wizard-footer">
+                <button type="button" id="prevBtn" class="btn-secondary hidden" onclick="nextPrev(-1)">Kembali</button>
+                <button type="button" id="nextBtn" class="btn-primary" onclick="nextPrev(1)">Lanjut <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+        </form>
+    </div>
+
+    <div id="resultOverlay" class="overlay hidden">
+        <div class="result-card">
+            <div class="result-icon">🏥</div>
+            <h3>Estimasi Maksimal Klaim</h3>
+            <h1 id="priceTag">Rp 0</h1>
+<p>Risk Level: <b id="riskText"></b></p>
+<p>Confidence: <b id="confidenceText"></b></p>
+
+            <p>Prediksi total biaya pengobatan yang dapat dicover.</p>
+            <button class="btn-primary" onclick="location.reload()">Cek Ulang</button>
+        </div>
+    </div>
+
+    <script src="calculator.js"></script>
+    <div id="loadingOverlay" class="overlay hidden">
+  <div class="result-card">
+      <h3>AI sedang menganalisa...</h3>
+      <div class="loader"></div>
+      <p>Model machine learning menghitung estimasi terbaik</p>
+  </div>
+</div>
+
+</body>
+</html>
