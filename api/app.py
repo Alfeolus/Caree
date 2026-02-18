@@ -46,30 +46,34 @@ disease_mapping = {
 
 def get_gemini_explanation(data, prediction_value):
     """
-    Menggunakan model 'models/gemini-2.5-flash' yang sudah terverifikasi ada.
+    Menggunakan model 'models/gemini-2.5-flash' dengan FORMAT POIN-POIN.
     """
     try:
         prompt = f"""
-        Bertindaklah sebagai dokter konsultan asuransi.
+        Bertindaklah sebagai dokter konsultan asuransi pribadi.
         
         Data Pasien:
-        - Usia: {data['age']} tahun
+        - Usia: {data['age']} th
         - BMI: {data['bmi']}
-        - Tensi: {data['bloodpressure']}
         - Perokok: {"Ya" if data['smoker'] == 1 else "Tidak"}
         - Riwayat: {data['hereditary_diseases']}
         
-        Sistem kami memprediksi klaim asuransi sebesar: USD {prediction_value:,.2f}.
+        Prediksi Klaim: USD {prediction_value:,.2f}.
 
-        Tugas Anda:
-        1. Jelaskan secara singkat (maksimal 2 kalimat) mengapa biayanya sebesar itu berdasarkan faktor risiko di atas.
-        2. Berikan 1 saran medis singkat dan spesifik untuk mengurangi risiko kesehatan pasien ini.
+        Tugas: Berikan respon singkat dalam format list persis seperti di bawah ini (jangan pakai markdown bold **):
+
+        🔍 Analisa:
+        [Jelaskan 1 kalimat kenapa harganya segitu]
+
+        💡 Saran Kesehatan:
+        • [Saran spesifik 1]
+        • [Saran spesifik 2]
+        • [Saran spesifik 3]
         
-        Gunakan bahasa Indonesia yang ramah, santai, namun tetap profesional. Jangan gunakan format markdown bold (**).
+        Gunakan bahasa Indonesia yang santai tapi profesional.
         """
         
-        # KITA PAKAI MODEL YANG BARUSAN DITEMUKAN
-        model_name = 'models/gemini-2.5-flash'
+        model_name = 'models/gemini-2.5-flash' # Atau model yang tadi berhasil
         
         logging.info(f"🤖 Menghubungi {model_name}...")
         model_ai = genai.GenerativeModel(model_name)
@@ -79,8 +83,7 @@ def get_gemini_explanation(data, prediction_value):
             
     except Exception as e:
         logging.error(f"⚠️ Gemini Error: {e}")
-        # Pesan cadangan jika AI tetap gagal, aplikasi tidak akan crash
-        return "Analisa AI sedang sibuk. Namun, selalu jaga kesehatan dengan pola makan dan olahraga teratur ya!"
+        return "🔍 Analisa:\nData Anda sedang diproses.\n\n💡 Saran Kesehatan:\n• Tetap jaga pola makan.\n• Rutin olahraga ringan.\n• Istirahat yang cukup."
 
 @app.route("/predict", methods=["POST"])
 def predict():
