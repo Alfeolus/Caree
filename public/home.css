@@ -225,3 +225,14 @@ footer {
     .nav-links { display: none; }
     .menu-toggle { display: block; }
 }
+
+/* Tambahkan ini di public/home.css (Bisa ditaruh di bawah .section-header p) */
+
+.section-header h3 {
+    font-family: 'Outfit', sans-serif; /* Pakai font judul */
+    font-size: 1.3rem;                 /* Sedikit lebih kecil dari H2 */
+    font-weight: 250;                  /* Tebal biar tegas */
+    margin-top: -5px;                  /* Biar nempel dikit ke H2 */
+    margin-bottom: 20px;               /* Jarak ke konten bawah */
+    color : black;
+}

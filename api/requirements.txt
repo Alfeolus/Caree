@@ -1,5 +1,7 @@
 Flask
+flask-cors
 scikit-learn
 joblib
 numpy
 google-generativeai
+gunicorn

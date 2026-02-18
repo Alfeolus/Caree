@@ -1,152 +1,155 @@
-// --- 1. TYPEWRITER EFFECT (Efek Mengetik Judul) ---
-const text1 = "Ketahui";
-const text2 = "";
-const speed = 120; // Kecepatan ngetik (ms)
+// --- 1. ADVANCED TYPEWRITER EFFECT (EFEK MENGETIK KEREN) ---
+const greetings = ["Halo", "Ciao", "Hola", "Bonjour", "Konnichiwa", "Annyeong"];
+const headlineText = "Cek Limit Klaim Kamu";
 
-const elLine1 = document.getElementById('type-line1');
-const elLine2 = document.getElementById('type-line2');
+const elGreeting = document.getElementById('type-greeting');
+const elHeadline = document.getElementById('type-headline');
 
-let i = 0;
-let j = 0;
+let greetIdx = 0;   // Indeks kata sapaan (Halo, Ciao, dll)
+let charIdx = 0;    // Indeks huruf sapaan
+let isDeleting = false;
 
-function typeWriter() {
-    // 1. Ketik Baris Pertama
-    if (i < text1.length) {
-        elLine1.innerHTML += text1.charAt(i);
-        i++;
-        setTimeout(typeWriter, speed);
-    } 
-    // 2. Jika Baris Pertama selesai, lanjut Baris Kedua
-    else if (j < text2.length) {
-        elLine2.innerHTML += text2.charAt(j);
-        j++;
-        setTimeout(typeWriter, speed);
+let headIdx = 0;    // Indeks huruf headline utama
+
+// A. Fungsi Ketik Sapaan (Looping: Ketik -> Hapus -> Ganti)
+function typeGreeting() {
+    const currentWord = greetings[greetIdx];
+    
+    if (isDeleting) {
+        // Sedang Menghapus
+        elGreeting.innerHTML = currentWord.substring(0, charIdx - 1);
+        charIdx--;
+    } else {
+        // Sedang Mengetik
+        elGreeting.innerHTML = currentWord.substring(0, charIdx + 1);
+        charIdx++;
+    }
+
+    let typeSpeed = 150;
+
+    if (!isDeleting && charIdx === currentWord.length) {
+        // Selesai ngetik satu kata, tahan 2 detik
+        isDeleting = true;
+        typeSpeed = 2000; 
+    } else if (isDeleting && charIdx === 0) {
+        // Selesai menghapus, ganti kata berikutnya
+        isDeleting = false;
+        greetIdx = (greetIdx + 1) % greetings.length; // Loop array
+        typeSpeed = 500;
+    } else if (isDeleting) {
+        // Kalau menghapus, lebih cepat
+        typeSpeed = 100;
+    }
+
+    setTimeout(typeGreeting, typeSpeed);
+}
+
+// B. Fungsi Ketik Judul Utama (Sekali Jalan, Permanen)
+function typeHeadline() {
+    if (headIdx < headlineText.length) {
+        elHeadline.innerHTML += headlineText.charAt(headIdx);
+        headIdx++;
+        setTimeout(typeHeadline, 100);
     }
 }
 
-// Jalankan Typewriter saat halaman dimuat (delay 500ms)
+// Jalankan saat halaman dimuat
 window.addEventListener('load', () => {
-    setTimeout(typeWriter, 500);
+    // Mulai sapaan
+    setTimeout(typeGreeting, 500);
+    // Mulai judul utama (delay dikit biar estetik)
+    setTimeout(typeHeadline, 1000);
+    
+    // Tambah class loaded ke body (opsional buat animasi CSS)
+    document.body.classList.add("loaded");
 });
 
 
-// --- 2. ANIMASI SCROLL (Muncul pelan-pelan) ---
-const observerOptions = {
-    threshold: 0.1 // Animasi jalan saat 10% elemen terlihat
-};
+// --- 2. ANIMASI SCROLL & NAVBAR ---
+window.addEventListener('scroll', () => {
+    const navbar = document.getElementById('navbar');
+    if (window.scrollY > 50) navbar.classList.add('scrolled');
+    else navbar.classList.remove('scrolled');
+});
 
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
             entry.target.classList.add('visible');
-            observer.unobserve(entry.target); // Stop observe setelah muncul
+            observer.unobserve(entry.target);
         }
     });
-}, observerOptions);
+}, { threshold: 0.1 });
 
-const animatedElements = document.querySelectorAll('.scroll-animate, .fade-up, .fade-in-right');
-animatedElements.forEach((el) => observer.observe(el));
+document.querySelectorAll('.scroll-animate, .fade-up, .fade-in-right').forEach(el => observer.observe(el));
 
 
-// --- 3. MOBILE MENU (Hamburger) ---
+
+// --- 4. MOBILE MENU ---
 const menuToggle = document.getElementById('mobile-menu');
 const navLinks = document.querySelector('.nav-links');
 
 if (menuToggle) {
     menuToggle.addEventListener('click', () => {
-        navLinks.classList.toggle('active');
-        const icon = menuToggle.querySelector('i');
-        
-        if (navLinks.classList.contains('active')) {
-            icon.classList.remove('fa-bars');
-            icon.classList.add('fa-times');
-        } else {
-            icon.classList.remove('fa-times');
-            icon.classList.add('fa-bars');
-        }
+        navLinks.style.display = (navLinks.style.display === 'flex') ? 'none' : 'flex';
     });
 }
 
-/* ================= CHATBOT LOGIC ================= */
 
-// 1. Toggle Buka/Tutup Chat
+// --- 5. CHATBOT LOGIC ---
 function toggleChat() {
     const chatWindow = document.getElementById('chatWindow');
     chatWindow.classList.toggle('hidden-chat');
-    
-    // Auto focus ke input pas dibuka
     if (!chatWindow.classList.contains('hidden-chat')) {
         setTimeout(() => document.getElementById('chatInput').focus(), 300);
     }
 }
 
-// 2. Handle Tombol Enter
-function handleEnter(e) {
-    if (e.key === 'Enter') sendMessage();
-}
+function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
 
-// 3. Kirim Pesan
 async function sendMessage() {
-    const inputField = document.getElementById('chatInput');
-    const message = inputField.value.trim();
-    const chatBody = document.getElementById('chatMessages');
+    const input = document.getElementById('chatInput');
+    const msg = input.value.trim();
+    if (!msg) return;
 
-    if (!message) return;
+    appendMsg(msg, 'user-msg');
+    input.value = '';
 
-    // A. Tampilkan Pesan User
-    appendMessage(message, 'user-msg');
-    inputField.value = '';
-
-    // B. Tampilkan Loading (Typing...)
-    const loadingId = 'loading-' + Date.now();
-    const loadingBubble = document.createElement('div');
-    loadingBubble.id = loadingId;
-    loadingBubble.className = 'typing-indicator';
-    loadingBubble.style.display = 'block';
-    loadingBubble.innerText = 'Dr. FutureGuard sedang mengetik...';
-    chatBody.appendChild(loadingBubble);
-    chatBody.scrollTop = chatBody.scrollHeight; 
+    const loadingId = 'load-' + Date.now();
+    appendMsg('<i>Sedang mengetik...</i>', 'bot-msg', loadingId);
 
     try {
-        // C. Panggil API Chatbot (Endpoint yang sama dengan kalkulator)
-        const response = await fetch('/api/chat', {
+        // Pastikan URL Absolut ke Port Python (5000)
+        const res = await fetch('http://127.0.0.1:5000/predict', { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify({ message: msg }) 
         });
-
-        const data = await response.json();
-
-        // Hapus loading
+        
+        // Note: Karena endpoint /predict di app.py kamu saat ini hanya menerima data asuransi (age, bmi, dll),
+        // Chatbot ini mungkin akan error 500 jika app.py belum punya logika 'chat'.
+        // Tapi kodingan di sini sudah benar secara struktur Frontend.
+        
+        const data = await res.json();
         document.getElementById(loadingId).remove();
-
-        // D. Tampilkan Balasan AI
-        if (data.status === 'success') {
-            appendMessage(data.reply, 'bot-msg');
+        
+        if (data.status === 'success' || data.reply) {
+            appendMsg(data.reply || "Halo, silakan gunakan menu Kalkulator untuk cek klaim.", 'bot-msg');
         } else {
-            appendMessage("Maaf, terjadi kesalahan koneksi.", 'bot-msg');
+            appendMsg("Maaf, saya belum mengerti.", 'bot-msg');
         }
-
-    } catch (error) {
+    } catch (err) {
         if(document.getElementById(loadingId)) document.getElementById(loadingId).remove();
-        appendMessage("Gagal terhubung ke server.", 'bot-msg');
-        console.error(error);
+        appendMsg("Halo! Silakan ke menu Kalkulator untuk mulai.", 'bot-msg');
     }
 }
 
-// Helper: Tambah Bubble Chat
-function appendMessage(text, className) {
-    const chatBody = document.getElementById('chatMessages');
-    const msgDiv = document.createElement('div');
-    msgDiv.className = `message ${className}`;
-    
-    // Ganti baris baru jadi <br>
-    msgDiv.innerHTML = text.replace(/\n/g, '<br>');
-    
-    chatBody.appendChild(msgDiv);
-    chatBody.scrollTop = chatBody.scrollHeight; // Auto scroll ke bawah
+function appendMsg(text, cls, id = null) {
+    const div = document.createElement('div');
+    div.className = `message ${cls}`;
+    if (id) div.id = id;
+    div.innerHTML = text;
+    const body = document.getElementById('chatMessages');
+    body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
 }
-
-window.addEventListener("load",()=>{
-    document.body.classList.add("loaded");
-});

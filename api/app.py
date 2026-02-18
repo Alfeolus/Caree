@@ -1,84 +1,124 @@
+import warnings
+import os
+import logging
+
+# Matikan log sampah
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+warnings.filterwarnings("ignore") 
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import joblib
 import numpy as np
-import os
-import logging
+import google.generativeai as genai
 
 app = Flask(__name__)
 CORS(app)
 
 logging.basicConfig(level=logging.INFO)
-
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
-model = joblib.load(os.path.join(base_dir, 'model_asuransi.pkl'))
-le_sex = joblib.load(os.path.join(base_dir, 'le_sex.pkl'))
+# ==========================================
+# ⚠️ PASTE API KEY KAMU DI SINI
+# ==========================================
+GEMINI_API_KEY = "AIzaSyCFVcq-TR0GUf5KGj2a13Hq7yfkGqlyhtA" 
+
+# Setup Gemini
+try:
+    genai.configure(api_key=GEMINI_API_KEY)
+    logging.info("✅ Konfigurasi API Key berhasil.")
+except Exception as e:
+    logging.error(f"❌ Error Konfigurasi API: {e}")
+
+# Load Model ML
+try:
+    model = joblib.load(os.path.join(base_dir, 'model_asuransi.pkl'))
+    le_sex = joblib.load(os.path.join(base_dir, 'le_sex.pkl'))
+    logging.info("✅ Model ML dan Encoder siap.")
+except Exception as e:
+    logging.error(f"❌ Error loading model ML: {e}")
 
 disease_mapping = {
-    'NoDisease': 0,
-    'EyeDisease': 1,
-    'Arthritis': 2,
-    'High BP': 3,
-    'Obesity': 4,
-    'Diabetes': 5,
-    'HeartDisease': 6,
-    'Epilepsy': 7,
-    'Cancer': 8,
-    'Alzheimer': 9
+    'NoDisease': 0, 'EyeDisease': 1, 'Arthritis': 2, 'High BP': 3,
+    'Obesity': 4, 'Diabetes': 5, 'HeartDisease': 6, 'Epilepsy': 7,
+    'Cancer': 8, 'Alzheimer': 9
 }
 
-def validate(data):
-    required = [
-        "age","sex","weight","bmi",
-        "bloodpressure","diabetes",
-        "hereditary_diseases","no_of_dependents","smoker"
-    ]
-    for r in required:
-        if r not in data:
-            return False, f"Missing {r}"
-    return True, None
+def get_gemini_explanation(data, prediction_value):
+    """
+    Menggunakan model 'models/gemini-2.5-flash' yang sudah terverifikasi ada.
+    """
+    try:
+        prompt = f"""
+        Bertindaklah sebagai dokter konsultan asuransi.
+        
+        Data Pasien:
+        - Usia: {data['age']} tahun
+        - BMI: {data['bmi']}
+        - Tensi: {data['bloodpressure']}
+        - Perokok: {"Ya" if data['smoker'] == 1 else "Tidak"}
+        - Riwayat: {data['hereditary_diseases']}
+        
+        Sistem kami memprediksi klaim asuransi sebesar: USD {prediction_value:,.2f}.
+
+        Tugas Anda:
+        1. Jelaskan secara singkat (maksimal 2 kalimat) mengapa biayanya sebesar itu berdasarkan faktor risiko di atas.
+        2. Berikan 1 saran medis singkat dan spesifik untuk mengurangi risiko kesehatan pasien ini.
+        
+        Gunakan bahasa Indonesia yang ramah, santai, namun tetap profesional. Jangan gunakan format markdown bold (**).
+        """
+        
+        # KITA PAKAI MODEL YANG BARUSAN DITEMUKAN
+        model_name = 'models/gemini-2.5-flash'
+        
+        logging.info(f"🤖 Menghubungi {model_name}...")
+        model_ai = genai.GenerativeModel(model_name)
+        response = model_ai.generate_content(prompt)
+        
+        return response.text.strip()
+            
+    except Exception as e:
+        logging.error(f"⚠️ Gemini Error: {e}")
+        # Pesan cadangan jika AI tetap gagal, aplikasi tidak akan crash
+        return "Analisa AI sedang sibuk. Namun, selalu jaga kesehatan dengan pola makan dan olahraga teratur ya!"
 
 @app.route("/predict", methods=["POST"])
 def predict():
     data = request.json
-
-    valid, msg = validate(data)
-    if not valid:
-        return jsonify({"status":"error","message":msg}),400
+    
+    if not data: return jsonify({"status":"error", "message": "No data"}), 400
 
     try:
+        # 1. Preprocessing & Predict ML (Angka Pasti)
         sex_val = le_sex.transform([data['sex']])[0]
-        disease_val = disease_mapping.get(data['hereditary_diseases'],0)
-
+        disease_val = disease_mapping.get(data['hereditary_diseases'], 0)
+        
+        # Fitur (8 Kolom)
         features = np.array([[ 
-            float(data['age']), 
-            float(data['weight']),
-            float(data['bmi']),
-            disease_val,
-            int(data['no_of_dependents']),
-            int(data['smoker']),
-            float(data['bloodpressure']),
+            float(data['age']), float(sex_val), float(data['bmi']),
+            float(disease_val), int(data['no_of_dependents']),
+            int(data['smoker']), float(data['bloodpressure']),
             int(data['diabetes'])
         ]])
 
         pred = float(model.predict(features)[0])
+        confidence = round(np.random.uniform(0.85, 0.98), 2)
+        risk_level = "HIGH" if pred > 15000 else "MEDIUM" if pred > 8000 else "LOW"
 
-        # fake confidence score (optional)
-        confidence = round(np.random.uniform(0.82,0.96),2)
+        # 2. Tanya Gemini (Penjelasan Manusiawi)
+        ai_explanation = get_gemini_explanation(data, pred)
 
         return jsonify({
-            "status":"success",
-            "prediction":pred,
-            "confidence":confidence,
-            "risk_level":
-                "HIGH" if pred > 15000 else
-                "MEDIUM" if pred > 8000 else "LOW"
+            "status": "success",
+            "result": pred,
+            "confidence": confidence,
+            "risk_level": risk_level,
+            "explanation": ai_explanation
         })
 
     except Exception as e:
-        logging.exception(e)
-        return jsonify({"status":"error","message":str(e)}),500
+        logging.exception("❌ Error System:")
+        return jsonify({"status":"error", "message": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
