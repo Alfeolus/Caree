@@ -76,7 +76,7 @@ function updateUI(n) {
 /* --- 4. KIRIM DATA KE PYTHON --- */
 async function submitForm() {
     const btn = document.getElementById("nextBtn");
-    btn.innerHTML = "<i class='fa-solid fa-circle-notch fa-spin'></i> AI Menganalisa...";
+    btn.innerHTML = "<i class='fa-solid fa-circle-notch fa-spin'></i> Menganalisa...";
     btn.disabled = true;
 
     try {

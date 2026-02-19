@@ -11,26 +11,22 @@ from flask_cors import CORS
 import joblib
 import numpy as np
 import google.generativeai as genai
+import requests  # <-- TAMBAHAN LIBRARY UNTUK KIRIM KE SPREADSHEET
 
 app = Flask(__name__)
 CORS(app)
 
 logging.basicConfig(level=logging.INFO)
 base_dir = os.path.dirname(os.path.abspath(__file__))
+GEMINI_API_KEY = "AIzaSyDad-S1o_it4yEH7PF5DugO_XrKNlMFQS0" 
+APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjgxumhwfWt97c48sbo_jAzBeMH5zsShowvYbcy7UwwvVcmT3UfgfB3Mz896sWdGOP/exec"
 
-# ==========================================
-# ⚠️ PASTE API KEY KAMU DI SINI
-# ==========================================
-GEMINI_API_KEY = "AIzaSyCFVcq-TR0GUf5KGj2a13Hq7yfkGqlyhtA" 
-
-# Setup Gemini
 try:
     genai.configure(api_key=GEMINI_API_KEY)
     logging.info("✅ Konfigurasi API Key berhasil.")
 except Exception as e:
     logging.error(f"❌ Error Konfigurasi API: {e}")
 
-# Load Model ML
 try:
     model = joblib.load(os.path.join(base_dir, 'model_asuransi.pkl'))
     le_sex = joblib.load(os.path.join(base_dir, 'le_sex.pkl'))
@@ -107,6 +103,32 @@ def predict():
         pred = float(model.predict(features)[0])
         confidence = round(np.random.uniform(0.85, 0.98), 2)
         risk_level = "HIGH" if pred > 15000 else "MEDIUM" if pred > 8000 else "LOW"
+
+        # --- KODE BARU: SIMPAN KE GOOGLE SPREADSHEET ---
+        try:
+            # Susun data yang akan dikirim ke Spreadsheet
+            sheet_data = {
+                "age": data.get('age', ''),
+                "sex": data.get('sex', ''),
+                "weight": data.get('weight', ''),
+                "bmi": data.get('bmi', ''),
+                "bloodpressure": data.get('bloodpressure', ''),
+                "diabetes": data.get('diabetes', 0),
+                "hereditary_diseases": data.get('hereditary_diseases', 'NoDisease'),
+                "smoker": data.get('smoker', 0),
+                "no_of_dependents": data.get('no_of_dependents', 0),
+                "prediction": round(pred, 2)
+            }
+            
+            # Kirim data ke Google Apps Script tanpa menunggu hasilnya (timeout di-set kecil jika diperlukan, tapi post standar juga aman)
+            res = requests.post(APPS_SCRIPT_URL, json=sheet_data)
+            if res.status_code == 200:
+                logging.info("✅ Data berhasil disimpan ke Google Sheets!")
+            else:
+                logging.warning(f"⚠️ Gagal simpan ke Sheets, status code: {res.status_code}")
+        except Exception as sheet_err:
+            logging.error(f"⚠️ Error saat mencoba simpan ke Sheets: {sheet_err}")
+        # --- AKHIR KODE BARU ---
 
         # 2. Tanya Gemini (Penjelasan Manusiawi)
         ai_explanation = get_gemini_explanation(data, pred)
