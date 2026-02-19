@@ -84,16 +84,38 @@ const observer = new IntersectionObserver((entries) => {
 document.querySelectorAll('.scroll-animate, .fade-up, .fade-in-right').forEach(el => observer.observe(el));
 
 
+// --- 4. MOBILE MENU (REVISED) ---
+const mobileMenu = document.getElementById('mobileMenu');
+const navLinks = document.getElementById('navLinks');
 
-// --- 4. MOBILE MENU ---
-const menuToggle = document.getElementById('mobile-menu');
-const navLinks = document.querySelector('.nav-links');
-
-if (menuToggle) {
-    menuToggle.addEventListener('click', () => {
-        navLinks.style.display = (navLinks.style.display === 'flex') ? 'none' : 'flex';
+if (mobileMenu) {
+    mobileMenu.addEventListener('click', () => {
+        // Toggle class 'active' untuk memunculkan menu
+        navLinks.classList.toggle('active');
+        
+        // Animasi ikon: ganti dari bars (garis 3) ke times (silang)
+        const icon = mobileMenu.querySelector('i');
+        icon.classList.toggle('fa-bars');
+        icon.classList.toggle('fa-times');
     });
 }
+
+// Tutup menu otomatis saat link diklik (smooth scroll)
+document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', () => {
+        navLinks.classList.remove('active');
+        const icon = mobileMenu.querySelector('i');
+        icon.classList.add('fa-bars');
+        icon.classList.remove('fa-times');
+    });
+});
+
+// Update scroll navbar (Fix ID mismatch)
+window.addEventListener('scroll', () => {
+    const navbar = document.querySelector('.navbar'); // Menggunakan class sesuai HTML
+    if (window.scrollY > 50) navbar.classList.add('scrolled');
+    else navbar.classList.remove('scrolled');
+});
 
 
 // --- 5. CHATBOT LOGIC ---

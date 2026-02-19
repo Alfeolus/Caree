@@ -238,3 +238,72 @@ button {
     vertical-align: middle; margin-left: 2px;
 }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* --- RESPONSIVE ADJUSTMENTS --- */
+@media (max-width: 600px) {
+    /* Navbar */
+    .navbar {
+        padding: 15px 20px;
+    }
+    
+    .nav-links a {
+        margin-left: 15px;
+        font-size: 0.9rem;
+    }
+
+    /* Container */
+    .wizard-container {
+        margin: 20px 10px;
+        padding: 25px 20px;
+        border-radius: 15px;
+    }
+
+    .wizard-header h2 {
+        font-size: 1.5rem;
+    }
+
+    /* Form Elements */
+    .radio-cards {
+        flex-direction: column; /* Tumpuk tombol Pria/Wanita secara vertikal */
+        gap: 10px;
+    }
+
+    .card-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        padding: 12px;
+    }
+
+    .card-content i {
+        margin-bottom: 0; /* Sejajarkan ikon dengan teks */
+        font-size: 1.2rem;
+    }
+
+    /* Buttons */
+    .wizard-footer {
+        flex-direction: column-reverse; /* Tombol 'Lanjut' di atas 'Kembali' */
+        gap: 10px;
+    }
+
+    .btn-secondary {
+        margin-right: 0;
+        width: 100%;
+    }
+
+    /* Result Overlay */
+    .result-card {
+        padding: 25px 20px;
+        width: 95%;
+    }
+
+    #priceTag {
+        font-size: 1.8rem;
+    }
+
+    .ai-box {
+        padding: 15px;
+        font-size: 0.85rem;
+    }
+}

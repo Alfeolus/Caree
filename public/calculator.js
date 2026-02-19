@@ -20,6 +20,7 @@ function showTab(n) {
     updateUI(n);
 }
 
+// Tambahkan di dalam fungsi nextPrev(n)
 function nextPrev(n) {
     let tabs = document.getElementsByClassName("form-step");
     if (n == 1 && !validateForm()) return false;
@@ -31,6 +32,13 @@ function nextPrev(n) {
         submitForm();
         return false;
     }
+
+    // Scroll ke atas container saat ganti step agar user tidak bingung di layar HP
+    window.scrollTo({
+        top: document.querySelector('.wizard-container').offsetTop - 20,
+        behavior: 'smooth'
+    });
+
     showTab(currentTab);
 }
 

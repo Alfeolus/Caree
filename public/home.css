@@ -212,18 +212,74 @@ footer {
 .chat-input-area input { flex: 1; padding: 10px 15px; border-radius: 30px; border: 1px solid #cbd5e1; outline: none; }
 .chat-input-area button { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; border: none; cursor: pointer; }
 
-
+/* Update CSS untuk Responsif */
 @media (max-width: 900px) {
-    .hero-content { grid-template-columns: 1fr; text-align: center; }
-    .hero-buttons, .stats-row, .image-area { justify-content: center; margin: 0 auto; }
-    .feature-grid, .steps-container { grid-template-columns: 1fr; }
-    .step-line { display: none; }
-    .footer-content { grid-template-columns: 1fr; text-align: center; gap: 30px; }
-    .footer-brand p { margin: 15px auto; }
-    .footer-logo { justify-content: center; }
-    .social-icons { justify-content: center; }
-    .nav-links { display: none; }
-    .menu-toggle { display: block; }
+    .menu-toggle {
+        display: block; /* Munculkan hamburger */
+        font-size: 1.8rem;
+        color: var(--dark);
+        z-index: 1001;
+        cursor: pointer;
+    }
+
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%; /* Sembunyi di kanan luar layar */
+        width: 70%;    /* Lebar menu mobile */
+        height: 100vh;
+        background: var(--white);
+        flex-direction: column; /* Berbaris vertikal */
+        justify-content: center;
+        gap: 30px;
+        transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+        z-index: 1000;
+        display: flex; /* Ganti dari none ke flex tapi posisi di luar layar */
+    }
+
+    .nav-links.active {
+        right: 0; /* Geser masuk ke layar */
+    }
+
+    .nav-links li {
+        width: 100%;
+        text-align: center;
+    }
+
+    .nav-links a {
+        font-size: 1.2rem;
+        display: block;
+        padding: 10px;
+    }
+
+    /* Penyesuaian Hero agar tidak berantakan di HP */
+    .hero-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+        padding-top: 40px;
+    }
+
+    .hero h1 {
+        font-size: 2.5rem;
+        min-height: auto;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .btn-primary, .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .stats-row {
+        margin: 20px auto;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
 }
 
 /* Tambahkan ini di public/home.css (Bisa ditaruh di bawah .section-header p) */
