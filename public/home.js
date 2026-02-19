@@ -119,8 +119,9 @@ async function sendMessage() {
     appendMsg('<i>Sedang mengetik...</i>', 'bot-msg', loadingId);
 
     try {
+        const API_URL = "https://yourgodzilaserver.tail9f1423.ts.net/predict";
         // Pastikan URL Absolut ke Port Python (5000)
-        const res = await fetch('http://127.0.0.1:5000/predict', { 
+        const res = await fetch(API_URL, { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: msg }) 

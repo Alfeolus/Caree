@@ -94,8 +94,9 @@ async function submitForm() {
 
         console.log("📤 Mengirim Data:", formData);
 
+        const API_URL = "https://yourgodzilaserver.tail9f1423.ts.net/predict";
         // Fetch ke backend Flask
-        const response = await fetch("http://127.0.0.1:5000/predict", {
+        const response = await fetch(API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData)
