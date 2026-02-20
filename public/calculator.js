@@ -20,6 +20,7 @@ function showTab(n) {
     updateUI(n);
 }
 
+// Tambahkan di dalam fungsi nextPrev(n)
 function nextPrev(n) {
     let tabs = document.getElementsByClassName("form-step");
     if (n == 1 && !validateForm()) return false;
@@ -31,6 +32,13 @@ function nextPrev(n) {
         submitForm();
         return false;
     }
+
+    // Scroll ke atas container saat ganti step agar user tidak bingung di layar HP
+    window.scrollTo({
+        top: document.querySelector('.wizard-container').offsetTop - 20,
+        behavior: 'smooth'
+    });
+
     showTab(currentTab);
 }
 
@@ -94,8 +102,9 @@ async function submitForm() {
 
         console.log("📤 Mengirim Data:", formData);
 
+        const API_URL = "https://yourgodzilaserver.tail9f1423.ts.net/predict";
         // Fetch ke backend Flask
-        const response = await fetch("http://127.0.0.1:5000/predict", {
+        const response = await fetch(API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData)

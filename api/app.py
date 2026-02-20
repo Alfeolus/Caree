@@ -93,6 +93,14 @@ def get_gemini_explanation(data, prediction_value):
         logging.error(f"⚠️ Gemini Error: {e}")
         return "🔍 Analisa:\nData Anda sedang diproses.\n\n💡 Saran Kesehatan:\n• Tetap jaga pola makan.\n• Rutin olahraga ringan.\n• Istirahat yang cukup."
 
+@app.route("/", methods=["GET"])
+def index():
+    return jsonify({
+        "status": "online",
+        "message": "Backend Caree API siap tempur, Bang!",
+        "ip_tailscale": "100.123.163.22"
+    })
+
 @app.route("/predict", methods=["POST"])
 def predict():
     data = request.json
@@ -158,4 +166,4 @@ def predict():
         return jsonify({"status":"error", "message": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5000)  
