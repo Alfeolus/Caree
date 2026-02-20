@@ -24,7 +24,7 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 # ⚠️ LOAD API KEY DARI FILE RAHASIA (.env)
 # ==========================================
 load_dotenv()  # <--- Buka brankas
-GEMINI_API_KEY = os.getenv("AIzaSyBC5QUeTaX5IqrROelz0cSvVYPlIkcOse4") # <--- Ambil isinya
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") # <--- Ambil isinya
 
 # Pastikan key tidak kosong
 if not GEMINI_API_KEY:
