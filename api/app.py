@@ -1,6 +1,7 @@
 import warnings
 import os
 import logging
+from dotenv import load_dotenv  # <--- TAMBAH INI
 
 # Matikan log sampah
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
@@ -11,14 +12,25 @@ from flask_cors import CORS
 import joblib
 import numpy as np
 import google.generativeai as genai
-import requests  # <-- TAMBAHAN LIBRARY UNTUK KIRIM KE SPREADSHEET
+import requests
 
 app = Flask(__name__)
 CORS(app)
 
 logging.basicConfig(level=logging.INFO)
 base_dir = os.path.dirname(os.path.abspath(__file__))
-GEMINI_API_KEY = "AIzaSyDad-S1o_it4yEH7PF5DugO_XrKNlMFQS0" 
+
+# ==========================================
+# ⚠️ LOAD API KEY DARI FILE RAHASIA (.env)
+# ==========================================
+load_dotenv()  # <--- Buka brankas
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") # <--- Ambil isinya
+
+# Pastikan key tidak kosong
+if not GEMINI_API_KEY:
+    logging.error("❌ API KEY TIDAK DITEMUKAN! Pastikan file .env sudah dibuat.")
+
+# (Lanjut ke kode kamu yang APPS_SCRIPT_URL dst...)
 APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjgxumhwfWt97c48sbo_jAzBeMH5zsShowvYbcy7UwwvVcmT3UfgfB3Mz896sWdGOP/exec"
 
 try:
