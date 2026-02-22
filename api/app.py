@@ -1,9 +1,9 @@
 import warnings
 import os
 import logging
-from dotenv import load_dotenv  # <--- TAMBAH INI
+from dotenv import load_dotenv
 
-# Matikan log sampah
+# Matikan log sampah dari TensorFlow
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 warnings.filterwarnings("ignore") 
 
@@ -23,22 +23,24 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 # ==========================================
 # ⚠️ LOAD API KEY DARI FILE RAHASIA (.env)
 # ==========================================
-load_dotenv()  # <--- Buka brankas
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") # <--- Ambil isinya
+load_dotenv()  # Buka brankas .env
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") # Ambil isinya
 
-# Pastikan key tidak kosong
 if not GEMINI_API_KEY:
-    logging.error("❌ API KEY TIDAK DITEMUKAN! Pastikan file .env sudah dibuat.")
+    logging.error("❌ API KEY TIDAK DITEMUKAN! Pastikan file .env sudah dibuat dan diisi.")
 
-# (Lanjut ke kode kamu yang APPS_SCRIPT_URL dst...)
+# URL Web App Google Apps Script
 APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjgxumhwfWt97c48sbo_jAzBeMH5zsShowvYbcy7UwwvVcmT3UfgfB3Mz896sWdGOP/exec"
 
+# Setup Gemini
 try:
-    genai.configure(api_key=GEMINI_API_KEY)
-    logging.info("✅ Konfigurasi API Key berhasil.")
+    if GEMINI_API_KEY:
+        genai.configure(api_key=GEMINI_API_KEY)
+        logging.info("✅ Konfigurasi API Key berhasil.")
 except Exception as e:
     logging.error(f"❌ Error Konfigurasi API: {e}")
 
+# Load Model ML
 try:
     model = joblib.load(os.path.join(base_dir, 'model_asuransi.pkl'))
     le_sex = joblib.load(os.path.join(base_dir, 'le_sex.pkl'))
@@ -81,7 +83,7 @@ def get_gemini_explanation(data, prediction_value):
         Gunakan bahasa Indonesia yang santai tapi profesional.
         """
         
-        model_name = 'models/gemini-2.5-flash' # Atau model yang tadi berhasil
+        model_name = 'models/gemini-2.5-flash' 
         
         logging.info(f"🤖 Menghubungi {model_name}...")
         model_ai = genai.GenerativeModel(model_name)
@@ -91,7 +93,7 @@ def get_gemini_explanation(data, prediction_value):
             
     except Exception as e:
         logging.error(f"⚠️ Gemini Error: {e}")
-        return "🔍 Analisa:\nData Anda sedang diproses.\n\n💡 Saran Kesehatan:\n• Tetap jaga pola makan.\n• Rutin olahraga ringan.\n• Istirahat yang cukup."
+        return "🔍 Saran Kesehatan:\n• Tetap jaga pola makan.\n• Rutin olahraga ringan.\n• Istirahat yang cukup."
 
 @app.route("/", methods=["GET"])
 def index():
@@ -140,8 +142,15 @@ def predict():
                 "prediction": round(pred, 2)
             }
             
-            # Kirim data ke Google Apps Script tanpa menunggu hasilnya (timeout di-set kecil jika diperlukan, tapi post standar juga aman)
-            res = requests.post(APPS_SCRIPT_URL, json=sheet_data)
+            # Tambahkan Headers biar Google tidak mengira ini bot
+            headers = {
+                "Content-Type": "application/json",
+                "User-Agent": "Mozilla/5.0"
+            }
+            
+            # Kirim data dengan allow_redirects=True (Penting buat hindari 403!)
+            res = requests.post(APPS_SCRIPT_URL, json=sheet_data, headers=headers, allow_redirects=True)
+            
             if res.status_code == 200:
                 logging.info("✅ Data berhasil disimpan ke Google Sheets!")
             else:
@@ -166,4 +175,4 @@ def predict():
         return jsonify({"status":"error", "message": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)  
+    app.run(debug=True, port=5000)
