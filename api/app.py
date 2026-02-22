@@ -20,16 +20,13 @@ CORS(app)
 logging.basicConfig(level=logging.INFO)
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
-# ==========================================
-# ⚠️ LOAD API KEY DARI FILE RAHASIA (.env)
-# ==========================================
 load_dotenv()  # Buka brankas .env
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") # Ambil isinya
 
 if not GEMINI_API_KEY:
     logging.error("❌ API KEY TIDAK DITEMUKAN! Pastikan file .env sudah dibuat dan diisi.")
 
-# URL Web App Google Apps Script
+
 APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjgxumhwfWt97c48sbo_jAzBeMH5zsShowvYbcy7UwwvVcmT3UfgfB3Mz896sWdGOP/exec"
 
 # Setup Gemini
